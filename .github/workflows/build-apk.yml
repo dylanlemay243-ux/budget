@@ -32,7 +32,7 @@ jobs:
 
       # 4. Install npm dependencies
       - name: Install npm dependencies
-        run: npm ci
+        run: npm install
 
       # 5. Generate a debug keystore (avoids needing a pre-committed one)
       - name: Generate debug keystore
