@@ -26,14 +26,32 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install npm dependencies
-        run: npm install
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install React Native CLI
+        run: npm install -g react-native-cli @react-native-community/cli
+
+      - name: Scaffold new React Native project
+        run: |
+          npx @react-native-community/cli init BudgetTracker --version 0.73.6 --skip-install
+          cd BudgetTracker
+          npm install
+
+      - name: Copy our App.tsx over the default one
+        run: cp App.tsx BudgetTracker/App.tsx
+
+      - name: Install extra dependencies
+        working-directory: BudgetTracker
+        run: |
+          npm install @react-native-async-storage/async-storage react-native-calendars
 
       - name: Generate debug keystore
+        working-directory: BudgetTracker/android/app
         run: |
           keytool -genkeypair \
             -v \
-            -keystore android/app/debug.keystore \
+            -keystore debug.keystore \
             -alias androiddebugkey \
             -keyalg RSA \
             -keysize 2048 \
@@ -42,19 +60,11 @@ jobs:
             -keypass android \
             -dname "CN=Android Debug, O=Android, C=US"
 
-      - name: Make Gradle wrapper executable
-        run: chmod +x android/gradlew
-
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: gradle-${{ hashFiles('android/**/*.gradle*', 'android/gradle/wrapper/gradle-wrapper.properties') }}
-          restore-keys: gradle-
+      - name: Make gradlew executable
+        run: chmod +x BudgetTracker/android/gradlew
 
       - name: Bundle React Native JS
+        working-directory: BudgetTracker
         run: |
           mkdir -p android/app/src/main/assets
           npx react-native bundle \
@@ -65,17 +75,12 @@ jobs:
             --assets-dest android/app/src/main/res
 
       - name: Build debug APK
-        working-directory: android
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        working-directory: BudgetTracker/android
+        run: ./gradlew assembleDebug --no-daemon
 
-      - name: Upload APK artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: BudgetTracker-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: BudgetTracker/android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 30
-
-      - name: Build complete
-        run: |
-          echo "✅ APK built successfully!"
-          ls -lh android/app/build/outputs/apk/debug/
