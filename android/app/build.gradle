@@ -2,10 +2,6 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
-react {
-    // No extra config needed; autolinking handles it
-}
-
 android {
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
@@ -35,13 +31,24 @@ android {
         }
         release {
             signingConfig signingConfigs.debug
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            minifyEnabled false
         }
     }
 }
 
+react {
+    hermesEnabled = true
+    enableHermes = true
+}
+
 dependencies {
-    implementation("com.facebook.react:react-android")
-    implementation("com.facebook.react:hermes-android")
+    implementation("com.facebook.react:react-android:0.73.6")
+    implementation("com.facebook.react:hermes-android:0.73.6")
+}
+
+repositories {
+    mavenCentral()
+    google()
+    maven { url "https://www.jitpack.io" }
+    maven { url "$rootDir/../node_modules/react-native/android" }
 }
