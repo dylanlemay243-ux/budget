@@ -41,7 +41,7 @@ jobs:
       - name: Install extra dependencies
         working-directory: BudgetTracker
         run: |
-          npm install @react-native-async-storage/async-storage react-native-calendars
+          npm install @react-native-async-storage/async-storage@1.21.0 react-native-calendars
 
       - name: Make gradlew executable
         run: chmod +x BudgetTracker/android/gradlew
