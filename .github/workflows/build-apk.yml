@@ -36,7 +36,20 @@ jobs:
           npm install
 
       - name: Copy our App.tsx
-        run: cp App.tsx BudgetTracker/App.tsx
+        run: |
+          set -e
+          # Find our App.tsx anywhere in the repo (handles the file living in a
+          # subfolder), excluding the freshly scaffolded project and node_modules.
+          SRC="$(find "$GITHUB_WORKSPACE" -maxdepth 3 -name App.tsx \
+                   -not -path '*/BudgetTracker/*' -not -path '*/node_modules/*' \
+                   -print -quit)"
+          if [ -z "$SRC" ]; then
+            echo "::error::Could not find App.tsx anywhere in the repository."
+            echo "Top-level repository contents:"; ls -la "$GITHUB_WORKSPACE"
+            exit 1
+          fi
+          echo "Using App.tsx from: $SRC"
+          cp "$SRC" "$GITHUB_WORKSPACE/BudgetTracker/App.tsx"
 
       - name: Install extra dependencies
         working-directory: BudgetTracker
