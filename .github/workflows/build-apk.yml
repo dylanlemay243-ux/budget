@@ -31,7 +31,7 @@ jobs:
 
       - name: Scaffold new React Native project
         run: |
-          npx @react-native-community/cli init BudgetTracker --version 0.73.6 --skip-install
+          npx @react-native-community/cli@12.3.7 init BudgetTracker --version 0.73.6 --skip-install
           cd BudgetTracker
           npm install
 
